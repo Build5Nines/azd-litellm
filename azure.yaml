@@ -3,15 +3,14 @@ metadata:
   subscription: ${AZURE_SUBSCRIPTION_ID}
   location: ${AZURE_LOCATION}
   resource_group: ${AZURE_RESOURCE_GROUP}
-
+  template: azd-litellm@0.0.1-beta
 infra:
   bicep: ./infra/main.bicep
   parameters:
-    - name: containerMinReplicaCount
-      value: 1
-    - name: containerMaxReplicaCount
-      value: 1
-
+  - name: containerMinReplicaCount
+    value: 1
+  - name: containerMaxReplicaCount
+    value: 1
 services:
   litellm:
     project: ./src/litellm
