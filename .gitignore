@@ -1,3 +1,30 @@
-.azure
-.DS_Store
+.azure/
 
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node / Prisma
+node_modules/
+.prisma/
+
+# Local config / secrets
+*.env
+*.env.*
+!.env.example
+
+# Build artifacts
+dist/
+build/

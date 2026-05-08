@@ -1,4 +1,16 @@
 # LiteLLM config.yaml file
-# Place any configuration parameters you need for LiteLLM here
+# Minimal config to boot the proxy. Secrets are injected via Container Apps env vars.
 
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+
+# At least one model mapping is required to initialize the proxy.
+# Update `model` (Azure deployment name) before deploying.
 model_list:
+  - model_name: azure-model
+    litellm_params:
+      model: azure/<your-azure-openai-deployment>
+      api_base: os.environ/AZURE_API_BASE
+      api_key: os.environ/AZURE_API_KEY
+      api_version: os.environ/AZURE_API_VERSION

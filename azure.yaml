@@ -8,7 +8,7 @@ infra:
   bicep: ./infra/main.bicep
   parameters:
     - name: containerMinReplicaCount
-      value: 1
+      value: 0
     - name: containerMaxReplicaCount
       value: 1
 
@@ -20,6 +20,7 @@ services:
     docker:
       context: ./
       path: DOCKERFILE
+      remoteBuild: true
     resources:
-      cpu: 0.5
-      memory: 1Gi
+      cpu: 1
+      memory: 2Gi
