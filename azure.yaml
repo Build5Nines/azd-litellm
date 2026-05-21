@@ -1,5 +1,6 @@
 name: litellm
 metadata:
+  template: azd-litellm
   subscription: ${AZURE_SUBSCRIPTION_ID}
   location: ${AZURE_LOCATION}
   resource_group: ${AZURE_RESOURCE_GROUP}
