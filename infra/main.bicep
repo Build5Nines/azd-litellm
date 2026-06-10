@@ -13,13 +13,13 @@ param location string
 param resourceGroupName string 
 
 @description('Port exposed by the LiteLLM container.')
-param containerPort int = 80
+param containerPort int = 4000
 
 @description('Minimum replica count for LiteLLM containers.')
-param containerMinReplicaCount int = 2
+param containerMinReplicaCount int = 1
 
 @description('Maximum replica count for LiteLLM containers.')
-param containerMaxReplicaCount int = 3
+param containerMaxReplicaCount int = 1
 
 @description('Name of the PostgreSQL database.')
 param databaseName string = 'litellmdb'
@@ -40,6 +40,16 @@ param litellm_master_key string
 @description('Salt key for LiteLLM. (CAN NOT CHANGE ONCE SET)')
 @secure()
 param litellm_salt_key string
+
+@description('Azure OpenAI API Key used by LiteLLM.')
+@secure()
+param azure_api_key string
+
+@description('Azure OpenAI endpoint base URL (e.g. https://<resource>.openai.azure.com/).')
+param azure_api_base string
+
+@description('Azure OpenAI API version.')
+param azure_api_version string = '2025-01-01-preview'
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, resourceGroupName, environmentName, location))
@@ -130,9 +140,12 @@ module litellm './app/litellm.bicep' = {
     name: containerAppName
     containerAppsEnvironmentName: appsEnv.outputs.name
     // keyvaultName: keyvault.outputs.name
-    postgresqlConnectionString: 'postgresql://${databaseAdminUser}:${databaseAdminPassword}@${postgresql.outputs.fqdn}/${databaseName}'
+    postgresqlConnectionString: 'postgresql://${databaseAdminUser}:${databaseAdminPassword}@${postgresql.outputs.fqdn}:5432/${databaseName}?sslmode=require'
     litellm_master_key: litellm_master_key
     litellm_salt_key: litellm_salt_key
+    azure_api_key: azure_api_key
+    azure_api_base: azure_api_base
+    azure_api_version: azure_api_version
 
     litellmContainerAppExists: litellmContainerAppExists
 
@@ -146,8 +159,6 @@ module litellm './app/litellm.bicep' = {
 
 
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.loginServer
-output LITELLM_MASTER_KEY string = litellm_master_key
-output LITELLM_SALT_KEY string = litellm_salt_key
 
 //output LITELLM_CONTAINER_APP_EXISTS bool = true
 // output LITELLM_CONTAINERAPP_FQDN string = litellm.outputs.containerAppFQDN

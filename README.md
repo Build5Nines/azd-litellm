@@ -2,6 +2,8 @@
 
 An `azd` template to deploy [LiteLLM](https://www.litellm.ai/) running in Azure Container Apps using an Azure PostgreSQL database.
 
+> This template was validated and updated with help from [Cursor](https://www.cursor.com/).
+
 To use this template, follow these steps using the [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/overview):
 
 1. Log in to Azure Developer CLI. This is only required once per-install.
@@ -25,10 +27,19 @@ To use this template, follow these steps using the [Azure Developer CLI](https:/
 4. `azd up` will prompt you to enter these additional secret and password parameters used to configure LiteLLM:
 
     - `databaseAdminPassword`: The Admin password use to connect to the PostgreSQL database.
-    - `litellm_master_key`: The LiteLLM Master Key. This is the LiteLLM proxy admin key.
+    - `litellm_master_key`: The LiteLLM Master Key. This is the LiteLLM proxy admin key (**must start with `sk-`**).
     - `litellm_salt_key`: The LiteLLM Salt Key. This cannot be changed once set, and is used to encrypt model keys in the database.
+    - `azure_api_base`: Your Azure OpenAI endpoint base URL (e.g. `https://<resource>.openai.azure.com/`).
+    - `azure_api_key`: Your Azure OpenAI API key.
 
     Be sure to save these secrets and passwords to keep them safe.
+
+5. Update the LiteLLM config file with your Azure OpenAI **deployment name**.
+
+    Edit [`/src/litellm/config.yaml`](/src/litellm/config.yaml) and replace:
+
+    - `model: azure/<your-azure-openai-deployment>` with your Azure OpenAI deployment name
+    - optionally `model_name` with the name you want clients to use (e.g. `gpt-5.4`)
 
 5. Once the template has finished provisioning all resources, and Azure Container Apps has completed deploying the LiteLLM container _(this can take a minute or so after `azd up` completes to finish)_, you can access both the Swagger UI and Admin UI for LiteLLM.
 
@@ -43,6 +54,16 @@ To use this template, follow these steps using the [Azure Developer CLI](https:/
     Navigating to `/ui` on the Endpoint URL will access the LiteLLM Admin UI where Models and other things can be configured:
 
     ![Screenshot of LiteLLM Admin UI](/assets/screenshot-litellm-admin-ui.png)
+
+## Admin UI login
+
+- Username: `admin`
+- Password: your `LITELLM_MASTER_KEY`
+
+## Notes
+
+- Azure Database for PostgreSQL requires TLS. This template uses `sslmode=require` in `DATABASE_URL`.
+- To scale to zero (cold start), set `containerMinReplicaCount` to `0`.
 
 ## Architecture Diagram
 
