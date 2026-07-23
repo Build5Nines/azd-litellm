@@ -39,6 +39,16 @@ param litellm_master_key string
 @secure()
 param litellm_salt_key string
 
+@description('Azure OpenAI API Key used by LiteLLM.')
+@secure()
+param azure_api_key string
+
+@description('Azure OpenAI endpoint base URL.')
+param azure_api_base string
+
+@description('Azure OpenAI API version.')
+param azure_api_version string
+
 param litellmContainerAppExists bool
 
 var abbrs = loadJsonContent('../abbreviations.json')
@@ -162,6 +172,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
           // identity: identity.id
           // keyVaultUrl: 'https://${keyvault.name}.vault.azure.net/secrets/${keyVaultSecretPostgreSQLConnectionString.outputs.secretName}'
         }
+        {
+          name: 'azure-api-key'
+          value: azure_api_key
+        }
       ]
     }
     template: {
@@ -169,6 +183,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         {
           name: containerName
           image: fetchLatestContainerImage.outputs.?containers[?0].?image ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          resources: {
+            cpu: 1
+            memory: '2Gi'
+          }
           env: [
             {
               name: 'LITELLM_MASTER_KEY'
@@ -183,8 +201,20 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               secretRef: 'database-url'
             }
             {
+              name: 'AZURE_API_KEY'
+              secretRef: 'azure-api-key'
+            }
+            {
+              name: 'AZURE_API_BASE'
+              value: azure_api_base
+            }
+            {
+              name: 'AZURE_API_VERSION'
+              value: azure_api_version
+            }
+            {
               name: 'STORE_MODEL_IN_DB'
-              value: 'True'
+              value: 'False'
             }
           ]
         }

@@ -1,24 +1,13 @@
 # https://docs.litellm.ai/docs/proxy/deploy
 
-FROM python:latest
+# Use LiteLLM's database-enabled image to avoid building Prisma artifacts in our own Docker build.
+FROM ghcr.io/berriai/litellm-database:main-stable
 
-USER root
 WORKDIR /app
-
-ENV HOME=/home/litellm
-ENV PATH="${HOME}/venv/bin:$PATH"
-
-
-RUN python -m venv ${HOME}/venv
-RUN ${HOME}/venv/bin/pip install --no-cache-dir --upgrade pip
-
-COPY requirements.txt .
-RUN --mount=type=cache,target=${HOME}/.cache/pip \
-    ${HOME}/venv/bin/pip install -r requirements.txt
 
 COPY config.yaml .
 
-EXPOSE 80/tcp
+EXPOSE 4000/tcp
 
 ENTRYPOINT ["litellm"]
-CMD ["--port", "80", "--config", "config.yaml"]
+CMD ["--port", "4000", "--config", "/app/config.yaml"]
